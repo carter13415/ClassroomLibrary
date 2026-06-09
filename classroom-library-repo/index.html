@@ -1,0 +1,1982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Library System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2c5282;
+            --primary-dark: #0f2744;
+            --secondary: #e2e8f0;
+            --accent: #38a169;
+            --accent-light: #48bb78;
+            --warning: #dd6b20;
+            --danger: #e53e3e;
+            --background: #f7fafc;
+            --surface: #ffffff;
+            --text: #1a202c;
+            --text-muted: #718096;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--background); color: var(--text); min-height: 100vh; line-height: 1.6; }
+        
+        /* Header */
+        .header { background: var(--primary); color: white; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-md); }
+        .header h1 { font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        .header-name { font-size: 0.9rem; opacity: 0.9; }
+        .header-btn { background: rgba(255,255,255,0.15); border: none; color: white; padding: 8px 16px; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.875rem; font-weight: 500; transition: background 0.2s; }
+        .header-btn:hover { background: rgba(255,255,255,0.25); }
+        
+        /* Navigation */
+        .nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; gap: 4px; overflow-x: auto; box-shadow: var(--shadow); position: sticky; top: 60px; z-index: 99; }
+        .nav-btn { padding: 14px 20px; border: none; background: none; color: var(--text-muted); font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all 0.2s; font-size: 0.9rem; }
+        .nav-btn:hover { color: var(--text); }
+        .nav-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: #f7fafc; }
+        
+        /* Container */
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+        
+        /* Panels */
+        .panel { display: none; }
+        .panel.active { display: block; }
+        
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+        .panel-header h2 { font-size: 1.5rem; font-weight: 600; color: var(--text); }
+        
+        /* Search */
+        .search-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; }
+        .search-input { padding: 10px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem; min-width: 280px; transition: border-color 0.2s, box-shadow 0.2s; }
+        .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,54,93,0.1); }
+        
+        /* Buttons */
+        .btn { padding: 10px 20px; border: none; border-radius: var(--radius-sm); font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); }
+        .btn-secondary { background: var(--secondary); color: var(--text); }
+        .btn-secondary:hover { background: #cbd5e0; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #c53030; }
+        .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+        .btn-icon { padding: 8px 12px; }
+        
+        /* Cards */
+        .card { background: var(--surface); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 20px; border: 1px solid var(--border); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .card-title { font-size: 1.1rem; font-weight: 600; }
+        
+        /* Stats */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--surface); border-radius: var(--radius); padding: 20px; text-align: center; box-shadow: var(--shadow); border: 1px solid var(--border); transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-icon { font-size: 1.5rem; margin-bottom: 8px; }
+        .stat-number { font-size: 2rem; font-weight: 700; color: var(--primary); }
+        .stat-label { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+        
+        /* Book Grid */
+        .book-meta span { display: inline-flex; align-items: center; gap: 4px; }
+        .book-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+        
+        /* Tables */
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        th { background: var(--secondary); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); position: sticky; top: 0; }
+        th:hover { background: #d2d8e3; }
+        tr:hover { background: #f7fafc; }
+        td { font-size: 0.9rem; }
+        td:first-child, th:first-child { padding-left: 16px; }
+        td:last-child, th:last-child { padding-right: 16px; }
+        .table-wrap { min-width: 700px; }
+        
+        /* Badges */
+        .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; }
+        .badge-green { background: #c6f6d5; color: #22543d; }
+        .badge-blue { background: #bee3f8; color: #2a4365; }
+        .badge-orange { background: #feebc8; color: #744210; }
+        .badge-gray { background: var(--secondary); color: var(--text-muted); }
+        .badge-purple { background: #e9d8fd; color: #44337a; }
+        
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; backdrop-filter: blur(4px); }
+        .modal-overlay.hidden { display: none; }
+        .modal { background: var(--surface); border-radius: var(--radius); padding: 28px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .modal h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+        .form-group { margin-bottom: 18px; }
+        .form-label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.9rem; color: var(--text); }
+        .form-input, .form-select { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem; transition: border-color 0.2s; }
+        .form-input:focus, .form-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,54,93,0.1); }
+        .modal-actions { display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; }
+        
+        /* Tabs */
+        .tabs { display: flex; margin-bottom: 20px; background: var(--secondary); border-radius: var(--radius-sm); padding: 4px; }
+        .tab { flex: 1; padding: 10px 16px; border: none; background: none; cursor: pointer; font-weight: 500; border-radius: 6px; transition: all 0.2s; font-size: 0.9rem; color: var(--text-muted); }
+        .tab.active { background: var(--primary); color: white; }
+        
+        /* Empty state */
+        .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.5; }
+        .empty-state p { font-size: 1rem; margin-bottom: 16px; }
+        
+        /* Login screen */
+        .login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); padding: 20px; }
+        .login-box { background: var(--surface); border-radius: var(--radius); padding: 40px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .login-logo { font-size: 3.5rem; margin-bottom: 12px; }
+        .login-box h1 { font-size: 1.5rem; margin-bottom: 8px; color: var(--text); }
+        .login-box p { color: var(--text-muted); margin-bottom: 28px; font-size: 0.95rem; }
+        .login-box input { width: 100%; }
+        .login-divider { margin: 20px 0; border-top: 1px solid var(--border); }
+        .login-link { color: var(--primary); text-decoration: none; font-weight: 500; }
+        .login-link:hover { text-decoration: underline; }
+        
+        /* Student info bar */
+        .student-info { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white; padding: 20px 24px; border-radius: var(--radius); margin-bottom: 20px; }
+        .student-info h3 { font-size: 1.2rem; margin-bottom: 4px; }
+        .student-info p { opacity: 0.9; font-size: 0.9rem; }
+        
+        /* Toast */
+        .toast { position: fixed; bottom: 24px; right: 24px; background: var(--text); color: white; padding: 14px 20px; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s; z-index: 2000; box-shadow: var(--shadow-md); font-size: 0.95rem; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        /* Book Item (used in student browse) */
+        .book-item { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; }
+        .book-item:hover { background: #f7fafc; }
+        .book-item:last-child { border-bottom: none; }
+        .book-item-info { flex: 1; }
+        .book-item-title { font-weight: 600; margin-bottom: 2px; }
+        .book-item-meta { font-size: 0.85rem; color: var(--text-muted); }
+        .book-item-actions { display: flex; gap: 8px; align-items: center; }
+        
+        /* Hidden */
+        .hidden { display: none !important; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header { padding: 12px 16px; flex-direction: column; gap: 12px; }
+            .nav { padding: 0 16px; top: 100px; }
+            .container { padding: 16px; }
+            .panel-header { flex-direction: column; align-items: flex-start; }
+            .search-input { min-width: 100%; }
+            .stats { grid-template-columns: 1fr 1fr; }
+            #panel-dashboard > div:last-child { grid-template-columns: 1fr !important; }
+            .modal { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-box">
+            <div class="login-logo">📚</div>
+            <h1>Classroom Library</h1>
+            <p>Manage books, students, and checkouts</p>
+            
+            <form onsubmit="return false;">
+                <div class="tabs">
+                    <button type="button" class="tab active" id="tabTeacher" onclick="switchTab('teacher')">Teacher</button>
+                    <button type="button" class="tab" id="tabStudent" onclick="switchTab('student')">Student</button>
+                </div>
+                
+                <div id="loginError" style="color: var(--danger); margin-bottom: 12px; display: none;"></div>
+                
+                <!-- Teacher Login -->
+                <div id="teacherLogin">
+                    <div class="form-group">
+                        <input type="text" id="teacherUsername" placeholder="Username" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="teacherPassword" placeholder="Password" class="form-input">
+                    </div>
+                    <button type="button" class="btn btn-primary" style="width: 100%;" onclick="teacherLogin()">Sign In</button>
+                    <div class="login-divider"></div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">
+                        New teacher? <a href="#" class="login-link" onclick="showTeacherSignup(); return false;">Create account</a>
+                    </p>
+                    <p style="font-size: 0.85rem; margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px;">
+                        <a href="admin.html" class="login-link">🔑 Admin Panel</a>
+                    </p>
+                </div>
+                
+                <!-- Teacher Signup -->
+                <div id="teacherSignup" style="display: none; text-align: left;">
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">Create your classroom</p>
+                    <div class="form-group">
+                        <input type="text" id="signupName" placeholder="Your name" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="signupUsername" placeholder="Username" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="signupPassword" placeholder="Password" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="signupClassName" placeholder="Class name (e.g. Smith's 3rd Grade)" class="form-input">
+                    </div>
+                    <div class="form-group" id="classCodeGroup">
+                        <label class="form-label">Class Code (share with students)</label>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="text" id="signupClassCode" class="form-input" style="flex: 1;" readonly>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="regenerateClassCode()">Regenerate</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary" style="width: 100%;" onclick="teacherSignup()">Create Account</button>
+                    <div class="login-divider"></div>
+                    <p style="text-align: center;">
+                        <a href="#" class="login-link" onclick="showTeacherLogin(); return false;">Back to sign in</a>
+                    </p>
+                </div>
+                
+                <!-- Student Login -->
+                <div id="studentLogin" style="display: none;">
+                    <div class="form-group">
+                        <input type="text" id="studentLoginClassCode" placeholder="Class Code" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="studentUsername" placeholder="Username" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="studentPassword" placeholder="Password" class="form-input">
+                    </div>
+                    <button type="button" class="btn btn-primary" style="width: 100%;" onclick="studentLogin()">Sign In</button>
+                    <div class="login-divider"></div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">
+                        New student? <a href="#" class="login-link" onclick="showStudentSignup(); return false;">Create account</a>
+                    </p>
+                </div>
+                
+                <!-- Student Signup -->
+                <div id="studentSignup" style="display: none; text-align: left;">
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">Join a classroom</p>
+                    <div class="form-group">
+                        <input type="text" id="studentSignupClassCode" placeholder="Class Code (from your teacher)" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="studentSignupName" placeholder="Your name" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="studentSignupUsername" placeholder="Choose username" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="studentSignupPassword" placeholder="Choose password" class="form-input">
+                    </div>
+                    <button type="button" class="btn btn-primary" style="width: 100%;" onclick="studentSignup()">Create Account</button>
+                    <div class="login-divider"></div>
+                    <p style="text-align: center;">
+                        <a href="#" class="login-link" onclick="showStudentLogin(); return false;">Back to sign in</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Teacher App -->
+    <div id="teacherApp" class="hidden">
+        <div class="header">
+            <h1>📚 Classroom Library</h1>
+            <div class="header-right">
+                <span class="header-name" id="welcomeTeacher"></span>
+                <button class="header-btn" onclick="logout()">Sign Out</button>
+            </div>
+        </div>
+        
+        <nav class="nav">
+            <button class="nav-btn active" onclick="showPanel('dashboard')">Dashboard</button>
+            <button class="nav-btn" onclick="showPanel('books')">Books</button>
+            <button class="nav-btn" onclick="showPanel('students')">Students</button>
+            <button class="nav-btn" onclick="showPanel('scan')">Scan</button>
+            <button class="nav-btn" onclick="showPanel('history')">History</button>
+            <button class="nav-btn" onclick="showPanel('reservations')">Reservations</button>
+            <button class="nav-btn" onclick="showPanel('catalog')">Catalog</button>
+        </nav>
+        
+        <div class="container">
+            <!-- Dashboard -->
+            <div id="panel-dashboard" class="panel active">
+                <div class="stats" id="statsGrid"></div>
+                
+                <div class="card" style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <span class="card-title" id="classViewTitle">Your Class</span>
+                            <span style="font-size: 0.9rem; color: var(--text-muted); margin-left: 12px;" id="teacherClassName"></span>
+                            <span id="teacherClassActions" style="margin-left: 8px; display: none;">
+                                <button class="btn btn-sm btn-secondary" onclick="renameMyClass()" title="Rename class">✏️</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteMyClass()" title="Delete class">🗑️</button>
+                            </span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="font-size: 0.85rem; color: var(--text-muted);">View:</span>
+                                <select id="classViewSelector" class="form-input" style="padding: 6px 10px; font-size: 0.85rem;" onchange="switchViewClass(this.value)"></select>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="font-size: 0.85rem; color: var(--text-muted);">Class Code:</span>
+                                <span style="font-size: 1.3rem; font-weight: 700; letter-spacing: 3px; color: var(--primary);" id="teacherClassCodeDisplay"></span>
+                                <button class="btn btn-sm btn-secondary" onclick="copyClassCode()">Copy</button>
+                                <button class="btn btn-sm btn-primary" onclick="shareLibrary()">Share</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Recent Activity</span>
+                        </div>
+                        <div id="recentActivity"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Overdue Books</span>
+                        </div>
+                        <div id="overdueList"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Books -->
+            <div id="panel-books" class="panel">
+                <div class="panel-header">
+                    <h2>Books</h2>
+                    <div class="search-row">
+                        <input type="text" class="search-input" id="bookSearch" placeholder="Search books...">
+                        <button class="btn btn-primary" onclick="openBookModal()">+ Add Book</button>
+                    </div>
+                </div>
+                <div class="card" style="background: #f5ebe0; border: 1px dashed #c07a5b; padding: 12px 16px;">
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <span style="font-size: 1.3rem;">📷</span>
+                        <span style="flex: 1; font-size: 0.85rem; color: var(--text-muted);">Scan a barcode to add the book instantly</span>
+                        <input type="text" id="quickBarcodeScan" placeholder="Scan barcode..." class="form-input" style="max-width: 180px;" autocomplete="off">
+                    </div>
+                    <div id="quickBarcodeStatus" style="font-size: 0.85rem; min-height: 20px; margin-top: 6px;"></div>
+                </div>
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div class="table-wrapper" id="booksTable"></div>
+                </div>
+            </div>
+            
+            <!-- Students -->
+            <div id="panel-students" class="panel">
+                <div class="panel-header">
+                    <h2>Students</h2>
+                    <div class="search-row">
+                        <input type="text" class="search-input" id="studentSearch" placeholder="Search students...">
+                        <button class="btn btn-primary" onclick="openStudentModal()">+ Add Student</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="table-wrapper" id="studentsTable"></div>
+                </div>
+            </div>
+            
+            <!-- Scan -->
+            <div id="panel-scan" class="panel">
+                <div class="panel-header">
+                    <h2>📷 Scan / Find Book</h2>
+                </div>
+                <div class="card">
+                    <input type="text" class="search-input" id="scanSearch" placeholder="Type or scan book ID or title..." style="width: 100%; margin-bottom: 20px;">
+                    <div id="scanResults"></div>
+                </div>
+            </div>
+            
+            <!-- History -->
+            <div id="panel-history" class="panel">
+                <div class="panel-header">
+                    <h2>Checkout History</h2>
+                    <button class="btn btn-secondary" onclick="exportData()">Export Data</button>
+                </div>
+                <div class="card">
+                    <div class="table-wrapper" id="historyTable"></div>
+                </div>
+            </div>
+            
+            <!-- Reservations -->
+            <div id="panel-reservations" class="panel">
+                <div class="panel-header">
+                    <h2>Student Reservations</h2>
+                </div>
+                <div class="card">
+                    <div class="table-wrapper" id="reservationsTable"></div>
+                </div>
+            </div>
+            
+            <!-- Catalog -->
+            <div id="panel-catalog" class="panel">
+                <div class="panel-header">
+                    <h2>Library Catalog</h2>
+                    <div class="search-row" style="flex-wrap: wrap;">
+                        <input type="text" class="search-input" id="catalogSearch" placeholder="Search by title, author, or ID..." style="min-width: 200px;">
+                        <select id="catalogGenreFilter" class="form-input" style="max-width: 160px;">
+                            <option value="">All Genres</option>
+                        </select>
+                        <select id="catalogAuthorFilter" class="form-input" style="max-width: 180px;">
+                            <option value="">All Authors</option>
+                        </select>
+                        <select id="catalogStatusFilter" class="form-input" style="max-width: 140px;">
+                            <option value="">All Status</option>
+                            <option value="available">Available</option>
+                            <option value="checked out">Checked Out</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="printCatalog()">🖨️ Print</button>
+                        <button class="btn btn-secondary" onclick="exportData()">Export</button>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center; margin-top: 8px;">
+                        <label style="font-size: 0.85rem; color: var(--text-muted);">Group by:</label>
+                        <select id="catalogGroupBy" class="form-input" style="max-width: 160px;" onchange="renderCatalog()">
+                            <option value="">No Grouping</option>
+                            <option value="genre">Genre</option>
+                            <option value="author">Author</option>
+                        </select>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);" id="catalogCount"></span>
+                    </div>
+                </div>
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div id="catalogContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Student App -->
+    <div id="studentApp" class="hidden">
+        <div class="header">
+            <h1>📚 My Library</h1>
+            <div class="header-right">
+                <span class="header-name" id="welcomeStudent"></span>
+                <button class="header-btn" onclick="studentLogout()">Sign Out</button>
+            </div>
+        </div>
+        
+        <nav class="nav">
+            <button class="nav-btn active" onclick="showStudentPanel('mybooks')">My Books</button>
+            <button class="nav-btn" onclick="showStudentPanel('browse')">Browse</button>
+            <button class="nav-btn" onclick="showStudentPanel('reservations')">Reservations</button>
+        </nav>
+        
+        <div class="container">
+            <!-- My Books -->
+            <div id="student-mybooks" class="panel active">
+                <div class="student-info" id="studentInfo"></div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">My Checked Out Books</span>
+                    </div>
+                    <div id="myBooks"></div>
+                </div>
+            </div>
+            
+            <!-- Browse -->
+            <div id="student-browse" class="panel">
+                <div class="panel-header">
+                    <h2>Browse Library</h2>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                        <input type="text" class="search-input" id="studentBrowseSearch" placeholder="Search books..." style="flex: 1;">
+                        <select id="browseGenreFilter" class="form-input" style="max-width: 150px; padding: 8px;">
+                            <option value="">All Genres</option>
+                        </select>
+                        <select id="browseAuthorFilter" class="form-input" style="max-width: 180px; padding: 8px;">
+                            <option value="">All Authors</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card">
+                    <div id="browseBooks"></div>
+                </div>
+            </div>
+            
+            <!-- Reservations -->
+            <div id="student-reservations" class="panel">
+                <div class="panel-header">
+                    <h2>My Reservations</h2>
+                </div>
+                <div class="card">
+                    <div id="myReservations"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Book Modal -->
+    <div id="bookModal" class="modal-overlay hidden">
+        <div class="modal">
+            <h2 id="bookModalTitle">Add Book</h2>
+            <input type="hidden" id="editBookId">
+            
+            <div class="tabs" style="margin-bottom: 20px;">
+                <button type="button" class="tab active" id="tabManual" onclick="switchBookTab('manual')">Manual</button>
+                <button type="button" class="tab" id="tabIsbn" onclick="switchBookTab('isbn')">ISBN</button>
+                <button type="button" class="tab" id="tabBarcode" onclick="switchBookTab('barcode')">Scan Barcode</button>
+            </div>
+            
+            <div id="manualBookEntry">
+                <div class="form-group">
+                    <label class="form-label">Title *</label>
+                    <input type="text" id="bookTitle" placeholder="Enter book title" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Author</label>
+                    <input type="text" id="bookAuthor" placeholder="Enter author" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Genre</label>
+                    <input type="text" id="bookGenre" placeholder="Enter genre" class="form-input">
+                </div>
+            </div>
+            
+            <div id="isbnBookEntry" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">ISBN</label>
+                    <input type="text" id="bookIsbn" placeholder="Enter ISBN (10 or 13 digits)" class="form-input">
+                </div>
+                <button type="button" class="btn btn-primary" style="width: 100%; margin-bottom: 16px;" onclick="lookupIsbn()">Search ISBN</button>
+                <div id="isbnResults" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Title</label>
+                        <input type="text" id="isbnBookTitle" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Author</label>
+                        <input type="text" id="isbnBookAuthor" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Genre</label>
+                        <input type="text" id="isbnBookGenre" class="form-input">
+                    </div>
+                </div>
+                <div id="isbnError" style="color: var(--danger); display: none; margin-bottom: 16px;"></div>
+                <div id="isbnLoading" style="display: none; text-align: center; padding: 20px;">Searching...</div>
+            </div>
+            
+            <div id="barcodeBookEntry" style="display: none;">
+                <div style="text-align: center; padding: 30px 0;">
+                    <div style="font-size: 3rem; margin-bottom: 12px;">📷</div>
+                    <p style="font-weight: 600; margin-bottom: 4px;">Scan your book barcode</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">I'll look it up for you!</p>
+                    <input type="text" id="barcodeInput" placeholder="Scanning will appear here..." class="form-input" style="text-align: center; font-size: 1.1rem; padding: 14px;" autocomplete="off">
+                    <div id="barcodeStatus" style="margin-top: 16px; min-height: 30px;"></div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeBookModal()">Cancel</button>
+                <button id="deleteBookBtn" class="btn btn-danger" onclick="deleteBookFromModal()" style="display:none;">Delete Book</button>
+                <button class="btn btn-primary" onclick="saveBook()">Save Book</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Student Modal -->
+    <div id="studentModal" class="modal-overlay hidden">
+        <div class="modal">
+            <h2 id="studentModalTitle">Add Student</h2>
+            <input type="hidden" id="editStudentId">
+            <div class="form-group">
+                <label class="form-label">Name *</label>
+                <input type="text" id="studentName" placeholder="Enter student name" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" id="studentUsernameCreate" placeholder="Auto-generated if blank" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="text" id="studentPasswordCreate" placeholder="Default: hello" class="form-input">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeStudentModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveStudent()">Save Student</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="modal-overlay hidden">
+        <div class="modal">
+            <h2>Checkout Book</h2>
+            <input type="hidden" id="checkoutBookId">
+            <p id="checkoutBookTitle" style="margin-bottom: 16px; font-weight: 600;"></p>
+            <div class="form-group">
+                <label class="form-label">Select Student</label>
+                <select class="form-input" id="checkoutStudentSelect"></select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Due Date</label>
+                <input type="date" class="form-input" id="checkoutDueDate">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeCheckoutModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmCheckout()">Checkout</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Return Modal -->
+    <div id="returnModal" class="modal-overlay hidden">
+        <div class="modal">
+            <h2>Return Book</h2>
+            <input type="hidden" id="returnBookId">
+            <p id="returnBookTitle" style="margin-bottom: 12px;"></p>
+            <p>Checked out to: <strong id="returnStudentName"></strong></p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeReturnModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmReturn()">Return Book</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- View Student Books Modal -->
+    <div id="viewStudentModal" class="modal-overlay hidden">
+        <div class="modal">
+            <h2 id="viewStudentName">Student Books</h2>
+            <div id="viewStudentBooks"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeViewStudentModal()">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toastContainer"></div>
+    
+    <script>
+        // Data
+        let teachers = [];
+        let students = [];
+        let books = [];
+        let history = [];
+        let currentTeacher = null;
+        let currentStudent = null;
+        let reservations = [];
+        
+        function generateClassCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+            return code;
+        }
+        
+        function regenerateClassCode() {
+            const code = generateClassCode();
+            document.getElementById('signupClassCode').value = code;
+        }
+        
+        // Initialize
+        function init() {
+            loadData();
+            
+            if (teachers.length === 0) {
+                teachers.push({ id: 'T' + Date.now(), name: 'Teacher', username: 'admin', password: 'admin', className: 'My Class', classCode: generateClassCode() });
+                saveData();
+            }
+            
+            // Migrate old data — ensure every teacher has a classCode
+            teachers.forEach(t => {
+                if (!t.classCode) t.classCode = generateClassCode();
+                if (!t.className) t.className = t.name + "'s Class";
+            });
+            
+            // Assign the first teacher's classCode to any records that lack one
+            const firstCode = teachers[0].classCode;
+            students.forEach(s => { if (!s.classCode) s.classCode = firstCode; });
+            books.forEach(b => { if (!b.classCode) b.classCode = firstCode; });
+            history.forEach(h => { if (!h.classCode) h.classCode = firstCode; });
+            reservations.forEach(r => { if (!r.classCode) r.classCode = firstCode; });
+            saveData();
+            
+            const savedTeacher = localStorage.getItem('libLastTeacher');
+            if (savedTeacher) {
+                const creds = JSON.parse(savedTeacher);
+                document.getElementById('teacherUsername').value = creds.username || '';
+                document.getElementById('teacherPassword').value = creds.password || '';
+                
+                if (creds.username && creds.password) {
+                    const teacher = teachers.find(t => t.username === creds.username && t.password === creds.password);
+                    if (teacher) {
+                        currentTeacher = teacher;
+                        document.getElementById('loginScreen').classList.add('hidden');
+                        document.getElementById('teacherApp').classList.remove('hidden');
+                        document.getElementById('welcomeTeacher').textContent = teacher.name;
+                        document.getElementById('classViewTitle').textContent = 'Your Class';
+                        document.getElementById('teacherClassName').textContent = teacher.className || 'My Class';
+                        document.getElementById('teacherClassCodeDisplay').textContent = teacher.classCode || '------';
+                        document.getElementById('teacherClassActions').style.display = 'inline';
+                        renderClassSelector();
+                        renderAll();
+                        return;
+                    }
+                }
+            }
+            
+            document.getElementById('bookSearch')?.addEventListener('input', renderBooks);
+            document.getElementById('studentSearch')?.addEventListener('input', renderStudents);
+            document.getElementById('studentBrowseSearch')?.addEventListener('input', renderBrowseBooks);
+            document.getElementById('browseGenreFilter')?.addEventListener('change', renderBrowseBooks);
+            document.getElementById('browseAuthorFilter')?.addEventListener('change', renderBrowseBooks);
+            document.getElementById('catalogSearch')?.addEventListener('input', renderCatalog);
+            document.getElementById('catalogGenreFilter')?.addEventListener('change', renderCatalog);
+            document.getElementById('catalogAuthorFilter')?.addEventListener('change', renderCatalog);
+            document.getElementById('catalogStatusFilter')?.addEventListener('change', renderCatalog);
+            
+            renderAll();
+        }
+        
+        function loadData() {
+            teachers = JSON.parse(localStorage.getItem('libTeachers') || '[]');
+            students = JSON.parse(localStorage.getItem('libStudents') || '[]');
+            books = JSON.parse(localStorage.getItem('libBooks') || '[]');
+            history = JSON.parse(localStorage.getItem('libHistory') || '[]');
+            reservations = JSON.parse(localStorage.getItem('libReservations') || '[]');
+        }
+        
+        function saveData() {
+            localStorage.setItem('libTeachers', JSON.stringify(teachers));
+            localStorage.setItem('libStudents', JSON.stringify(students));
+            localStorage.setItem('libBooks', JSON.stringify(books));
+            localStorage.setItem('libHistory', JSON.stringify(history));
+            localStorage.setItem('libReservations', JSON.stringify(reservations));
+        }
+        
+        function backupIsbn(isbn, bookData) {
+            let backups = JSON.parse(localStorage.getItem('libIsbnBackup') || '{}');
+            backups[isbn] = { data: bookData, backedUpAt: new Date().toISOString() };
+            localStorage.setItem('libIsbnBackup', JSON.stringify(backups));
+        }
+        
+        // Tab switching
+        function switchTab(tab) {
+            document.getElementById('tabTeacher').classList.toggle('active', tab === 'teacher');
+            document.getElementById('tabStudent').classList.toggle('active', tab === 'student');
+            document.getElementById('teacherLogin').style.display = tab === 'teacher' ? 'block' : 'none';
+            document.getElementById('teacherSignup').style.display = 'none';
+            document.getElementById('studentLogin').style.display = tab === 'student' ? 'block' : 'none';
+            document.getElementById('studentSignup').style.display = 'none';
+            document.getElementById('loginError').style.display = 'none';
+        }
+        
+        function showTeacherSignup() {
+            document.getElementById('teacherLogin').style.display = 'none';
+            document.getElementById('teacherSignup').style.display = 'block';
+            document.getElementById('signupClassCode').value = generateClassCode();
+        }
+        
+        function showTeacherLogin() {
+            document.getElementById('teacherLogin').style.display = 'block';
+            document.getElementById('teacherSignup').style.display = 'none';
+        }
+        
+        function showStudentSignup() {
+            document.getElementById('studentLogin').style.display = 'none';
+            document.getElementById('studentSignup').style.display = 'block';
+        }
+        
+        function showStudentLogin() {
+            document.getElementById('studentLogin').style.display = 'block';
+            document.getElementById('studentSignup').style.display = 'none';
+        }
+        
+        // Teacher Login
+        function teacherLogin() {
+            const username = document.getElementById('teacherUsername').value.trim();
+            const password = document.getElementById('teacherPassword').value.trim();
+            
+            const teacher = teachers.find(t => t.username === username && t.password === password);
+            if (!teacher) { showLoginError('Invalid username or password'); return; }
+            
+            localStorage.setItem('libLastTeacher', JSON.stringify({ username, password }));
+            currentTeacher = teacher;
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('teacherApp').classList.remove('hidden');
+            document.getElementById('welcomeTeacher').textContent = teacher.name;
+            document.getElementById('classViewTitle').textContent = 'Your Class';
+            document.getElementById('teacherClassName').textContent = teacher.className || 'My Class';
+            document.getElementById('teacherClassCodeDisplay').textContent = teacher.classCode || '------';
+            document.getElementById('teacherClassActions').style.display = 'inline';
+            renderClassSelector();
+            renderAll();
+            clearLoginFields();
+        }
+        
+        function teacherSignup() {
+            const name = document.getElementById('signupName').value.trim();
+            const username = document.getElementById('signupUsername').value.trim();
+            const password = document.getElementById('signupPassword').value.trim();
+            const className = document.getElementById('signupClassName').value.trim();
+            const classCode = document.getElementById('signupClassCode').value.trim() || generateClassCode();
+            
+            if (!name || !username || !password || !className) { showToast('Please fill all fields', 'error'); return; }
+            if (teachers.find(t => t.username === username)) { showToast('Username taken', 'error'); return; }
+            if (teachers.find(t => t.classCode === classCode)) { showToast('Class code taken, please regenerate', 'error'); return; }
+            
+            teachers.push({ id: 'T' + Date.now(), name, username, password, className, classCode });
+            saveData();
+            showToast('Classroom created! Class code: ' + classCode);
+            showTeacherLogin();
+            document.getElementById('teacherUsername').value = username;
+        }
+        
+        function showLoginError(msg) {
+            const el = document.getElementById('loginError');
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+        
+        function clearLoginFields() {
+            ['teacherUsername', 'teacherPassword', 'studentUsername', 'studentPassword', 'studentLoginClassCode', 'studentSignupClassCode'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('loginError').style.display = 'none';
+        }
+        
+        function adminAccess() {
+            const code = prompt('Enter admin access code:');
+            if (code === 'library123') {
+                window.location.href = 'admin.html';
+            } else if (code !== null) {
+                showLoginError('Invalid access code');
+            }
+        }
+        
+        function copyClassCode() {
+            const code = document.getElementById('teacherClassCodeDisplay').textContent;
+            navigator.clipboard.writeText(code).then(() => showToast('Class code copied!')).catch(() => {});
+        }
+        
+        function shareLibrary() {
+            const url = window.location.href;
+            const code = document.getElementById('teacherClassCodeDisplay').textContent;
+            const isLocalFile = url.startsWith('file://');
+            if (isLocalFile) {
+                const msg = `📚 Classroom Library\n\nRun "start-library.bat" on the teacher computer, then share the server address.\n\nClass Code: ${code}\n\nStudents need to open the server address (e.g. http://TEACHER_IP:8000) in a browser and sign in with this class code.`;
+                navigator.clipboard.writeText(msg).then(() => showToast('Share instructions copied!')).catch(() => { prompt('Copy this:', msg); });
+            } else {
+                const msg = `📚 Classroom Library\n\nOpen this link:\n${url}\n\nClass Code: ${code}\n\nStudents: open the link and sign in with this class code.`;
+                navigator.clipboard.writeText(msg).then(() => showToast('Library link + class code copied!')).catch(() => { prompt('Copy this:', msg); });
+            }
+        }
+        
+        function renderClassSelector() {
+            const sel = document.getElementById('classViewSelector');
+            if (!sel) return;
+            const current = currentTeacher.classCode;
+            sel.innerHTML = teachers.map(t => `<option value="${t.classCode}" ${t.classCode === current ? 'selected' : ''}>${escapeHtml(t.className)} (${t.classCode})</option>`).join('');
+        }
+        
+        function switchViewClass(classCode) {
+            const viewing = teachers.find(t => t.classCode === classCode);
+            document.getElementById('teacherClassName').textContent = viewing ? viewing.className : (currentTeacher.className || 'My Class');
+            document.getElementById('teacherClassCodeDisplay').textContent = viewing ? viewing.classCode : (currentTeacher.classCode || '------');
+            document.getElementById('teacherClassActions').style.display = (!viewing || viewing.id === currentTeacher.id) ? 'inline' : 'none';
+            renderAll();
+        }
+        
+        function renameMyClass() {
+            const name = prompt('Rename your class to:', currentTeacher.className);
+            if (name && name.trim()) {
+                currentTeacher.className = name.trim();
+                saveData();
+                document.getElementById('teacherClassName').textContent = name.trim();
+                showToast('Class renamed');
+            }
+        }
+        
+        function deleteMyClass() {
+            if (!confirm(`Delete "${currentTeacher.className}"? All books and students in this class will become orphaned.`)) return;
+            const cc = currentTeacher.classCode;
+            teachers = teachers.filter(t => t.id !== currentTeacher.id);
+            saveData();
+            logout();
+            showToast('Class deleted');
+        }
+        
+        function logout() {
+            currentTeacher = null;
+            document.getElementById('teacherApp').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+        }
+        
+        // Student Login
+        function studentLogin() {
+            const classCode = document.getElementById('studentLoginClassCode').value.trim().toUpperCase();
+            const username = document.getElementById('studentUsername').value.trim();
+            const password = document.getElementById('studentPassword').value.trim();
+            
+            const student = students.find(s => s.classCode === classCode && s.username === username && s.password === password);
+            if (!student) { showLoginError('Invalid class code, username, or password'); return; }
+            
+            localStorage.setItem('libLastStudent', JSON.stringify({ classCode, username, password }));
+            currentStudent = student;
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('studentApp').classList.remove('hidden');
+            document.getElementById('welcomeStudent').textContent = student.name;
+            clearLoginFields();
+            
+            // Reload data to get latest changes
+            loadData();
+            renderStudentDashboard();
+        }
+        
+        function studentLogout() {
+            currentStudent = null;
+            document.getElementById('studentApp').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+        }
+        
+        function studentSignup() {
+            const classCode = document.getElementById('studentSignupClassCode').value.trim().toUpperCase();
+            const name = document.getElementById('studentSignupName').value.trim();
+            const username = document.getElementById('studentSignupUsername').value.trim();
+            const password = document.getElementById('studentSignupPassword').value.trim();
+            
+            if (!classCode || !name || !username || !password) { showLoginError('Please fill all fields'); return; }
+            const teacher = teachers.find(t => t.classCode === classCode);
+            if (!teacher) { showLoginError('Invalid class code — check with your teacher'); return; }
+            if (students.find(s => s.classCode === classCode && s.username === username)) { showLoginError('Username taken in this class'); return; }
+            
+            students.push({ id: 'S' + Date.now(), classCode, name, username, password, createdBy: 'self' });
+            saveData();
+            showToast('Account created!');
+            showStudentLogin();
+            document.getElementById('studentLoginClassCode').value = classCode;
+            document.getElementById('studentUsername').value = username;
+        }
+        
+        // Student Panel
+        function showStudentPanel(name) {
+            document.querySelectorAll('#studentApp .panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('#studentApp .nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('student-' + name).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Always reload data from localStorage when switching panels
+            loadData();
+            
+            if (name === 'browse') renderBrowseBooks();
+            if (name === 'reservations') renderStudentReservations();
+            if (name === 'mybooks') renderStudentDashboard();
+        }
+        
+        // Refresh student data every 5 seconds when student app is active
+        setInterval(() => {
+            if (document.getElementById('studentApp').classList.contains('hidden') === false) {
+                loadData();
+            }
+        }, 5000);
+        
+        function populateBrowseFilters() {
+            const myBooks = books.filter(b => b.classCode === currentStudent.classCode);
+            const genreSet = new Set();
+            const authorSet = new Set();
+            myBooks.forEach(b => { if (b.genre) genreSet.add(b.genre); if (b.author) authorSet.add(b.author); });
+            const genreSel = document.getElementById('browseGenreFilter');
+            const authorSel = document.getElementById('browseAuthorFilter');
+            if (genreSel) {
+                const currentGenre = genreSel.value;
+                genreSel.innerHTML = '<option value="">All Genres</option>' + [...genreSet].sort().map(g => `<option value="${escapeHtml(g)}" ${g === currentGenre ? 'selected' : ''}>${escapeHtml(g)}</option>`).join('');
+            }
+            if (authorSel) {
+                const currentAuthor = authorSel.value;
+                authorSel.innerHTML = '<option value="">All Authors</option>' + [...authorSet].sort().map(a => `<option value="${escapeHtml(a)}" ${a === currentAuthor ? 'selected' : ''}>${escapeHtml(a)}</option>`).join('');
+            }
+        }
+        
+        function renderBrowseBooks() {
+            loadData();
+            
+            const myBooks = books.filter(b => b.classCode === currentStudent.classCode);
+            const search = (document.getElementById('studentBrowseSearch')?.value || '').toLowerCase();
+            const genreFilter = document.getElementById('browseGenreFilter')?.value || '';
+            const authorFilter = document.getElementById('browseAuthorFilter')?.value || '';
+            
+            let filtered = myBooks.filter(b => b.title.toLowerCase().includes(search) || (b.author || '').toLowerCase().includes(search));
+            if (genreFilter) filtered = filtered.filter(b => b.genre === genreFilter);
+            if (authorFilter) filtered = filtered.filter(b => b.author === authorFilter);
+            
+            populateBrowseFilters();
+            
+            if (filtered.length === 0) {
+                document.getElementById('browseBooks').innerHTML = '<div class="empty-state"><div class="icon">📚</div><p>No books found — try a different search</p></div>';
+                return;
+            }
+            
+            document.getElementById('browseBooks').innerHTML = filtered.map(book => {
+                const myReservation = reservations.find(r => r.bookId === book.bookId && r.studentId === currentStudent.id);
+                return `
+                    <div class="book-item">
+                        <div class="book-item-info">
+                            <div class="book-item-title">${escapeHtml(book.title)}</div>
+                            <div class="book-item-meta">${escapeHtml(book.author || 'Unknown')} ${book.genre ? '• ' + book.genre : ''}</div>
+                        </div>
+                        <div class="book-item-actions">
+                            <span class="badge ${book.status === 'available' ? 'badge-green' : 'badge-blue'}">${book.status === 'available' ? '✓ Available' : '📖 Out'}</span>
+                            ${book.status === 'available' && !book.studentId ?
+                                `<button class="btn btn-sm btn-primary" onclick="studentCheckout('${book.bookId}')">Checkout</button>` :
+                                `<button class="btn btn-sm btn-secondary" onclick="studentReserve('${book.bookId}')" ${myReservation ? 'disabled' : ''}>${myReservation ? 'Reserved' : 'Reserve'}</button>`
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function studentCheckout(bookId) {
+            const book = books.find(b => b.classCode === currentStudent.classCode && b.bookId === bookId);
+            if (!book || book.status !== 'available') return;
+            
+            const dueDate = new Date();
+            dueDate.setDate(dueDate.getDate() + 14);
+            
+            book.status = 'checked out';
+            book.studentId = currentStudent.id;
+            book.student = currentStudent.name;
+            book.dueDate = dueDate.toISOString();
+            reservations = reservations.filter(r => !(r.bookId === bookId && r.studentId === currentStudent.id));
+            addHistory('Checked out', bookId, book.title, currentStudent.id, currentStudent.name);
+            saveData();
+            renderBrowseBooks();
+            renderStudentDashboard();
+            showToast('Checked out: ' + book.title);
+        }
+        
+        function studentReserve(bookId) {
+            const book = books.find(b => b.classCode === currentStudent.classCode && b.bookId === bookId);
+            if (!book) return;
+            if (reservations.find(r => r.bookId === bookId && r.studentId === currentStudent.id)) { showToast('Already reserved', 'error'); return; }
+            const myReservations = reservations.filter(r => r.studentId === currentStudent.id && !r.fulfilled);
+            if (myReservations.length >= 3) { showToast('Max 3 reservations', 'error'); return; }
+            
+            reservations.push({ id: 'R' + Date.now(), bookId, bookTitle: book.title, studentId: currentStudent.id, studentName: currentStudent.name, timestamp: new Date().toISOString(), fulfilled: false, classCode: currentStudent.classCode });
+            saveData();
+            renderBrowseBooks();
+            showToast('Reserved: ' + book.title);
+        }
+        
+        function renderStudentReservations() {
+            const myReservations = reservations.filter(r => r.classCode === currentStudent.classCode && r.studentId === currentStudent.id);
+            
+            if (myReservations.length === 0) {
+                document.getElementById('myReservations').innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No reservations yet</p><p style="font-size: 0.85rem;">Go to Browse and reserve a book that&#39;s checked out!</p></div>';
+                return;
+            }
+            
+            document.getElementById('myReservations').innerHTML = myReservations.map(r => {
+                const book = books.find(b => b.bookId === r.bookId);
+                const isAvailable = book && book.status === 'available' && !book.studentId;
+                return `
+                    <div class="book-item">
+                        <div class="book-item-info">
+                            <div class="book-item-title">${escapeHtml(r.bookTitle)}</div>
+                            <div class="book-item-meta">Reserved: ${formatDate(r.timestamp)}</div>
+                        </div>
+                        <div class="book-item-actions">
+                            ${isAvailable ? `<button class="btn btn-sm btn-primary" onclick="studentCheckout('${r.bookId}')">Checkout</button>` : '<span class="badge badge-blue">Waiting</span>'}
+                            <button class="btn btn-sm btn-danger" onclick="cancelReservation('${r.id}')">Cancel</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function cancelReservation(resId) {
+            const res = reservations.find(r => r.id === resId);
+            if (!res || res.studentId !== currentStudent.id) return;
+            if (!confirm('Cancel reservation?')) return;
+            reservations = reservations.filter(r => r.id !== resId);
+            saveData();
+            renderStudentReservations();
+            showToast('Reservation cancelled');
+        }
+        
+        function renderStudentDashboard() {
+            const myBooks = books.filter(b => b.classCode === currentStudent.classCode && b.studentId === currentStudent.id);
+            document.getElementById('studentInfo').innerHTML = `<h3>Welcome, ${escapeHtml(currentStudent.name)}</h3><p>${myBooks.length} book${myBooks.length !== 1 ? 's' : ''} checked out</p>`;
+            
+            if (myBooks.length === 0) {
+                document.getElementById('myBooks').innerHTML = '<div class="empty-state"><div class="icon">📚</div><p>No books checked out</p><button class="btn btn-primary" onclick="showStudentPanel(\'browse\'); document.querySelectorAll(\'#studentApp .nav-btn\')[1].click();">Browse Library</button></div>';
+                return;
+            }
+            
+            const today = new Date();
+            document.getElementById('myBooks').innerHTML = myBooks.map(book => {
+                const dueDate = new Date(book.dueDate);
+                const isOverdue = dueDate < today;
+                return `
+                    <div class="book-item">
+                        <div class="book-item-info">
+                            <div class="book-item-title">${escapeHtml(book.title)}</div>
+                            <div class="book-item-meta">${escapeHtml(book.author || '')}</div>
+                        </div>
+                        <div class="book-item-actions">
+                            <span class="badge ${isOverdue ? 'badge-orange' : 'badge-green'}">${isOverdue ? 'OVERDUE' : 'Due: ' + formatDate(book.dueDate)}</span>
+                            <button class="btn btn-sm btn-secondary" onclick="studentReturnBook('${book.bookId}')">Return</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function studentReturnBook(bookId) {
+            const book = books.find(b => b.classCode === currentStudent.classCode && b.bookId === bookId);
+            if (!book || book.studentId !== currentStudent.id) return;
+            const studentName = book.student;
+            book.status = 'available';
+            book.studentId = null;
+            book.student = null;
+            book.dueDate = null;
+            addHistory('Returned', bookId, book.title, currentStudent.id, studentName);
+            saveData();
+            renderStudentDashboard();
+            showToast('Returned: ' + book.title);
+        }
+        
+        // Panel Navigation
+        function showPanel(name) {
+            document.querySelectorAll('#teacherApp .panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('#teacherApp .nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('panel-' + name).classList.add('active');
+            document.querySelectorAll('#teacherApp .nav-btn').forEach(b => {
+                if (b.textContent.trim().toLowerCase() === name) b.classList.add('active');
+            });
+            if (name === 'catalog') renderCatalog();
+        }
+        
+        // Render All
+        function renderAll() {
+            renderStats();
+            renderBooks();
+            renderStudents();
+            renderHistory();
+            renderOverdue();
+            renderReservations();
+        }
+        
+        function renderStats() {
+            const cc = currentTeacher.classCode;
+            const myBooks = books.filter(b => b.classCode === cc);
+            const myStudents = students.filter(s => s.classCode === cc);
+            const total = myBooks.length;
+            const available = myBooks.filter(b => b.status === 'available').length;
+            const checkedOut = total - available;
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-number">${total}</div><div class="stat-label">Total Books</div></div>
+                <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-number">${available}</div><div class="stat-label">Available</div></div>
+                <div class="stat-card"><div class="stat-icon">📖</div><div class="stat-number">${checkedOut}</div><div class="stat-label">Checked Out</div></div>
+                <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-number">${myStudents.length}</div><div class="stat-label">Students</div></div>
+            `;
+            
+            const recent = history.slice(-5).reverse();
+            document.getElementById('recentActivity').innerHTML = recent.length ?
+                recent.map(h => `<div style="padding: 10px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px;">
+                    <span class="badge ${h.action === 'Returned' ? 'badge-green' : h.action === 'Checked out' ? 'badge-blue' : 'badge-gray'}">${h.action}</span>
+                    <span style="flex: 1;">${escapeHtml(h.bookTitle)} ${h.studentName ? '→ ' + escapeHtml(h.studentName) : ''}</span>
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">${formatDate(h.timestamp)}</span>
+                </div>`).join('') :
+                '<div class="empty-state"><div class="icon">📋</div><p>No activity yet</p></div>';
+        }
+        
+        function renderOverdue() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const cc = currentTeacher.classCode;
+            const myBooks = books.filter(b => b.classCode === cc);
+            const overdue = myBooks.filter(b => b.dueDate && b.status === 'checked out' && new Date(b.dueDate) < today);
+            
+            if (overdue.length === 0) {
+                document.getElementById('overdueList').innerHTML = '<div class="empty-state"><div class="icon">✅</div><p>No overdue books</p></div>';
+                return;
+            }
+            
+            document.getElementById('overdueList').innerHTML = overdue.map(book => `
+                <div style="padding: 10px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                    <div><strong>${escapeHtml(book.title)}</strong><span style="color: var(--text-muted); margin-left: 8px;">— ${escapeHtml(book.student || 'Unknown')}</span></div>
+                    <span class="badge badge-orange">Due: ${formatDate(book.dueDate)}</span>
+                </div>
+            `).join('');
+        }
+        
+        function renderBooks() {
+            const cc = currentTeacher.classCode;
+            const myBooks = books.filter(b => b.classCode === cc);
+            const search = (document.getElementById('bookSearch')?.value || '').toLowerCase();
+            const filtered = myBooks.filter(b => b.title.toLowerCase().includes(search) || (b.author || '').toLowerCase().includes(search) || b.bookId.toLowerCase().includes(search));
+            
+            if (filtered.length === 0) {
+                document.getElementById('booksTable').innerHTML = `<div class="empty-state"><div class="icon">📚</div><p>${search ? 'No books match your search' : 'No books yet — add one!'}</p>${!search ? '<button class="btn btn-primary" onclick="openBookModal()">Add First Book</button>' : ''}</div>`;
+                return;
+            }
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            document.getElementById('booksTable').innerHTML = `
+                <table>
+                    <thead><tr>
+                        <th onclick="sortBooks('bookId')" style="cursor: pointer;">ID ↕</th>
+                        <th onclick="sortBooks('title')" style="cursor: pointer;">Title ↕</th>
+                        <th onclick="sortBooks('author')" style="cursor: pointer;">Author ↕</th>
+                        <th>Genre</th>
+                        <th>Status</th>
+                        <th>Student</th>
+                        <th>Due</th>
+                        <th>Actions</th>
+                    </tr></thead>
+                    <tbody>
+                        ${filtered.map(book => {
+                            const isOverdue = book.dueDate && book.status === 'checked out' && new Date(book.dueDate) < today;
+                            return `
+                                <tr>
+                                    <td style="font-size: 0.85rem; color: var(--text-muted);">${book.bookId}</td>
+                                    <td><strong>${escapeHtml(book.title)}</strong></td>
+                                    <td>${escapeHtml(book.author || '-')}</td>
+                                    <td style="white-space: normal; max-width: 130px;">${book.genre ? `<span class="badge badge-gray">${escapeHtml(book.genre)}</span>` : '-'}</td>
+                                    <td>
+                                        <span class="badge ${book.status === 'available' ? 'badge-green' : 'badge-blue'}">
+                                            ${book.status === 'available' ? '✓ Available' : '📖 Out'}
+                                        </span>
+                                    </td>
+                                    <td>${book.student ? escapeHtml(book.student) : '-'}</td>
+                                    <td>${book.dueDate ? `<span class="badge ${isOverdue ? 'badge-orange' : 'badge-gray'}">${formatDate(book.dueDate)}</span>` : '-'}</td>
+                                    <td>
+                                        ${book.status === 'available' ?
+                                            `<button class="btn btn-sm btn-primary" onclick="openCheckoutModal('${book.bookId}')">Checkout</button>` :
+                                            `<button class="btn btn-sm btn-secondary" onclick="openReturnModal('${book.bookId}')">Return</button>`
+                                        }
+                                        <button class="btn btn-sm btn-secondary" onclick="editBook('${book.bookId}')">Edit</button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteBook('${book.bookId}')">Delete</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        let sortField = 'title';
+        let sortDir = 1;
+        function sortBooks(field) {
+            if (sortField === field) sortDir *= -1;
+            else { sortField = field; sortDir = 1; }
+            books.sort((a, b) => {
+                const va = (a[field] || '').toLowerCase();
+                const vb = (b[field] || '').toLowerCase();
+                return va < vb ? -sortDir : va > vb ? sortDir : 0;
+            });
+            renderBooks();
+        }
+        
+        function renderStudents() {
+            const cc = currentTeacher.classCode;
+            const myStudents = students.filter(s => s.classCode === cc);
+            const search = (document.getElementById('studentSearch')?.value || '').toLowerCase();
+            const filtered = myStudents.filter(s => s.name.toLowerCase().includes(search) || s.username.toLowerCase().includes(search));
+            
+            if (filtered.length === 0) {
+                document.getElementById('studentsTable').innerHTML = `<div class="empty-state"><div class="icon">👥</div><p>${search ? 'No matches' : 'No students yet'}</p>${!search ? '<button class="btn btn-primary" onclick="openStudentModal()">Add First Student</button>' : ''}</div>`;
+                return;
+            }
+            
+            document.getElementById('studentsTable').innerHTML = `
+                <table>
+                    <thead><tr><th>Name</th><th>Username</th><th>Password</th><th>Created</th><th>Books</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        ${filtered.map(s => {
+                            const studentBooks = books.filter(b => b.studentId === s.id);
+                            return `
+                                <tr>
+                                    <td><strong>${escapeHtml(s.name)}</strong></td>
+                                    <td>${escapeHtml(s.username)}</td>
+                                    <td style="color: var(--text-muted);">${s.password || 'hello'}</td>
+                                    <td><span class="badge ${s.createdBy === 'teacher' ? 'badge-green' : 'badge-purple'}">${s.createdBy === 'teacher' ? 'Teacher' : 'Self'}</span></td>
+                                    <td><span class="badge ${studentBooks.length ? 'badge-blue' : 'badge-gray'}">${studentBooks.length}</span> ${studentBooks.length ? `<button class="btn btn-sm btn-secondary" onclick="viewStudentBooks('${s.id}')">View</button>` : ''}</td>
+                                    <td><button class="btn btn-sm btn-secondary" onclick="editStudent('${s.id}')">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteStudent('${s.id}')">Delete</button></td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        function renderHistory() {
+            const cc = currentTeacher.classCode;
+            const myHistory = history.filter(h => h.classCode === cc);
+            if (myHistory.length === 0) {
+                document.getElementById('historyTable').innerHTML = `<div class="empty-state"><div class="icon">📋</div><p>No history yet</p></div>`;
+                return;
+            }
+            const sorted = [...myHistory].reverse();
+            document.getElementById('historyTable').innerHTML = `
+                <table>
+                    <thead><tr><th>Date</th><th>Action</th><th>Book</th><th>Student</th></tr></thead>
+                    <tbody>
+                        ${sorted.map(h => `<tr><td>${formatDate(h.timestamp)}</td><td><span class="badge ${h.action === 'Returned' ? 'badge-green' : h.action === 'Checked out' ? 'badge-blue' : 'badge-gray'}">${h.action}</span></td><td>${escapeHtml(h.bookTitle)}</td><td>${h.studentName ? escapeHtml(h.studentName) : '-'}</td></tr>`).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        function renderReservations() {
+            const cc = currentTeacher.classCode;
+            const myReservations = reservations.filter(r => r.classCode === cc);
+            if (myReservations.length === 0) {
+                document.getElementById('reservationsTable').innerHTML = `<div class="empty-state"><div class="icon">📋</div><p>No reservations</p></div>`;
+                return;
+            }
+            document.getElementById('reservationsTable').innerHTML = `
+                <table>
+                    <thead><tr><th>Student</th><th>Book</th><th>Reserved</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody>
+                        ${myReservations.map(r => {
+                            const book = books.find(b => b.bookId === r.bookId);
+                            const isAvailable = book && book.status === 'available' && !book.studentId;
+                            return `<tr><td><strong>${escapeHtml(r.studentName)}</strong></td><td>${escapeHtml(r.bookTitle)}</td><td>${formatDate(r.timestamp)}</td><td>${isAvailable ? '<span class="badge badge-green">Ready</span>' : '<span class="badge badge-blue">Waiting</span>'}</td><td>${isAvailable ? `<button class="btn btn-sm btn-primary" onclick="fulfillReservation('${r.id}')">Fulfill</button>` : ''} <button class="btn btn-sm btn-danger" onclick="deleteReservation('${r.id}')">Cancel</button></td></tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        function fulfillReservation(resId) {
+            const res = reservations.find(r => r.id === resId);
+            if (!res) return;
+            const book = books.find(b => b.bookId === res.bookId);
+            if (!book || book.status !== 'available') return;
+            
+            const dueDate = new Date();
+            dueDate.setDate(dueDate.getDate() + 14);
+            book.status = 'checked out';
+            book.studentId = res.studentId;
+            book.student = res.studentName;
+            book.dueDate = dueDate.toISOString();
+            res.fulfilled = true;
+            addHistory('Checked out', res.bookId, res.bookTitle, res.studentId, res.studentName);
+            saveData();
+            renderAll();
+            showToast('Reservation fulfilled');
+        }
+        
+        function deleteReservation(resId) {
+            if (!confirm('Cancel this reservation?')) return;
+            reservations = reservations.filter(r => r.id !== resId);
+            saveData();
+            renderReservations();
+            showToast('Reservation cancelled');
+        }
+        
+        // Catalog
+        function populateCatalogFilters() {
+            const myBooks = books.filter(b => b.classCode === currentTeacher.classCode);
+            const genreSet = new Set();
+            const authorSet = new Set();
+            myBooks.forEach(b => { if (b.genre) genreSet.add(b.genre); if (b.author) authorSet.add(b.author); });
+            const genreSel = document.getElementById('catalogGenreFilter');
+            const authorSel = document.getElementById('catalogAuthorFilter');
+            if (genreSel) {
+                const cur = genreSel.value;
+                genreSel.innerHTML = '<option value="">All Genres</option>' + [...genreSet].sort().map(g => `<option value="${escapeHtml(g)}" ${g === cur ? 'selected' : ''}>${escapeHtml(g)}</option>`).join('');
+            }
+            if (authorSel) {
+                const cur = authorSel.value;
+                authorSel.innerHTML = '<option value="">All Authors</option>' + [...authorSet].sort().map(a => `<option value="${escapeHtml(a)}" ${a === cur ? 'selected' : ''}>${escapeHtml(a)}</option>`).join('');
+            }
+        }
+        
+        function renderCatalog() {
+            const myBooks = books.filter(b => b.classCode === currentTeacher.classCode);
+            const search = (document.getElementById('catalogSearch')?.value || '').toLowerCase();
+            const genreF = document.getElementById('catalogGenreFilter')?.value || '';
+            const authorF = document.getElementById('catalogAuthorFilter')?.value || '';
+            const statusF = document.getElementById('catalogStatusFilter')?.value || '';
+            const groupBy = document.getElementById('catalogGroupBy')?.value || '';
+            
+            let filtered = myBooks.filter(b => b.title.toLowerCase().includes(search) || (b.author || '').toLowerCase().includes(search) || b.bookId.toLowerCase().includes(search));
+            if (genreF) filtered = filtered.filter(b => b.genre === genreF);
+            if (authorF) filtered = filtered.filter(b => b.author === authorF);
+            if (statusF) filtered = filtered.filter(b => b.status === statusF);
+            
+            populateCatalogFilters();
+            document.getElementById('catalogCount').textContent = `${filtered.length} book${filtered.length !== 1 ? 's' : ''}`;
+            
+            if (filtered.length === 0) {
+                document.getElementById('catalogContent').innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);"><p>No books match your filters</p></div>';
+                return;
+            }
+            
+            if (groupBy === 'genre') {
+                const groups = {};
+                filtered.forEach(b => { const g = b.genre || 'Uncategorized'; if (!groups[g]) groups[g] = []; groups[g].push(b); });
+                const sortedGroups = Object.keys(groups).sort();
+                document.getElementById('catalogContent').innerHTML = sortedGroups.map(genre => `
+                    <div style="border-bottom: 2px solid var(--border);">
+                        <div style="padding: 12px 16px; background: var(--bg-secondary); font-weight: 600; font-size: 1rem;">${escapeHtml(genre)} <span style="font-weight: 400; color: var(--text-muted);">(${groups[genre].length})</span></div>
+                        ${groups[genre].map(book => catalogBookRow(book)).join('')}
+                    </div>
+                `).join('');
+            } else if (groupBy === 'author') {
+                const groups = {};
+                filtered.forEach(b => { const a = b.author || 'Unknown'; if (!groups[a]) groups[a] = []; groups[a].push(b); });
+                const sortedGroups = Object.keys(groups).sort();
+                document.getElementById('catalogContent').innerHTML = sortedGroups.map(author => `
+                    <div style="border-bottom: 2px solid var(--border);">
+                        <div style="padding: 12px 16px; background: var(--bg-secondary); font-weight: 600; font-size: 1rem;">${escapeHtml(author)} <span style="font-weight: 400; color: var(--text-muted);">(${groups[author].length})</span></div>
+                        ${groups[author].map(book => catalogBookRow(book)).join('')}
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('catalogContent').innerHTML = filtered.map(book => catalogBookRow(book)).join('');
+            }
+        }
+        
+        function catalogBookRow(book) {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const isOverdue = book.dueDate && book.status === 'checked out' && new Date(book.dueDate) < today;
+            return `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border);">
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 600;">${escapeHtml(book.title)}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">${escapeHtml(book.author || '-')} ${book.genre ? '• ' + escapeHtml(book.genre) : ''} <span style="font-family: monospace;">${book.bookId}</span></div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                        <span class="badge ${book.status === 'available' ? 'badge-green' : 'badge-blue'}">${book.status === 'available' ? '✓ Available' : '📖 Out'}</span>
+                        ${book.student ? `<span style="font-size: 0.85rem; color: var(--text-muted);">→ ${escapeHtml(book.student)}</span>` : ''}
+                        ${book.dueDate ? `<span class="badge ${isOverdue ? 'badge-orange' : 'badge-gray'}">${formatDate(book.dueDate)}</span>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function printCatalog() {
+            const myBooks = books.filter(b => b.classCode === currentTeacher.classCode);
+            const sorted = [...myBooks].sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+            const win = window.open('', '_blank');
+            win.document.write(`<!DOCTYPE html><html><head><title>Library Catalog - ${escapeHtml(currentTeacher.className)}</title>
+<style>body{font-family:Georgia,serif;padding:40px;color:#333}h1{text-align:center;margin-bottom:4px}p{subtitle{text-align:center;color:#666;margin-bottom:30px}}
+table{width:100%;border-collapse:collapse;font-size:12px}th{background:#f0f0f0;text-align:left;padding:8px 6px;border-bottom:2px solid #999}
+td{padding:6px;border-bottom:1px solid #ddd}tr:nth-child(even){background:#fafafa}
+.footer{text-align:center;margin-top:30px;color:#999;font-size:11px}@media print{body{padding:20px}}</style></head><body>
+<h1>📚 ${escapeHtml(currentTeacher.className)} Library Catalog</h1>
+<p style="text-align:center;color:#666;margin-bottom:30px;">${sorted.length} book${sorted.length !== 1 ? 's' : ''} • Generated ${new Date().toLocaleDateString()}</p>
+<table><thead><tr><th>ID</th><th>Title</th><th>Author</th><th>Genre</th><th>Status</th><th>Student</th><th>Due</th></tr></thead><tbody>
+${sorted.map(book => `<tr><td style="font-family:monospace;font-size:10px;">${book.bookId}</td><td><strong>${escapeHtml(book.title)}</strong></td><td>${escapeHtml(book.author || '-')}</td><td>${escapeHtml(book.genre || '-')}</td><td>${book.status === 'available' ? 'Available' : 'Checked Out'}</td><td>${book.student ? escapeHtml(book.student) : '-'}</td><td>${book.dueDate ? formatDate(book.dueDate) : '-'}</td></tr>`).join('')}
+</tbody></table>
+<p class="footer">Classroom Library System</p></body></html>`);
+            win.document.close();
+            setTimeout(() => { win.print(); }, 300);
+        }
+        
+        // Book Modal
+        function openBookModal() {
+            document.getElementById('bookModalTitle').textContent = 'Add Book';
+            document.getElementById('editBookId').value = '';
+            document.getElementById('bookTitle').value = '';
+            document.getElementById('bookAuthor').value = '';
+            document.getElementById('bookGenre').value = '';
+            document.getElementById('bookIsbn').value = '';
+            document.getElementById('isbnBookTitle').value = '';
+            document.getElementById('isbnBookAuthor').value = '';
+            document.getElementById('isbnBookGenre').value = '';
+            document.getElementById('isbnResults').style.display = 'none';
+            document.getElementById('isbnError').style.display = 'none';
+            document.getElementById('deleteBookBtn').style.display = 'none';
+            switchBookTab('manual');
+            document.getElementById('bookModal').classList.remove('hidden');
+        }
+        
+        function editBook(bookId) {
+            const book = books.find(b => b.bookId === bookId);
+            if (!book) return;
+            document.getElementById('bookModalTitle').textContent = 'Edit Book';
+            document.getElementById('editBookId').value = book.bookId;
+            document.getElementById('deleteBookBtn').style.display = 'inline-block';
+            document.getElementById('bookTitle').value = book.title;
+            document.getElementById('bookAuthor').value = book.author || '';
+            document.getElementById('bookGenre').value = book.genre || '';
+            document.getElementById('isbnResults').style.display = 'none';
+            switchBookTab('manual');
+            document.getElementById('bookModal').classList.remove('hidden');
+        }
+        
+        function switchBookTab(tab) {
+            document.getElementById('tabManual').classList.toggle('active', tab === 'manual');
+            document.getElementById('tabIsbn').classList.toggle('active', tab === 'isbn');
+            document.getElementById('tabBarcode').classList.toggle('active', tab === 'barcode');
+            document.getElementById('manualBookEntry').style.display = tab === 'manual' ? 'block' : 'none';
+            document.getElementById('isbnBookEntry').style.display = tab === 'isbn' ? 'block' : 'none';
+            document.getElementById('barcodeBookEntry').style.display = tab === 'barcode' ? 'block' : 'none';
+            
+            if (tab === 'barcode') {
+                setTimeout(() => {
+                    const input = document.getElementById('barcodeInput');
+                    input.value = '';
+                    input.focus();
+                    document.getElementById('barcodeStatus').innerHTML = '';
+                }, 100);
+            }
+        }
+        
+        // Barcode scanner detection
+        let barcodeTimer = null;
+        document.addEventListener('keydown', function(e) {
+            const entry = document.getElementById('barcodeBookEntry');
+            if (!entry || entry.style.display === 'none') return;
+            
+            const input = document.getElementById('barcodeInput');
+            if (document.activeElement !== input) return;
+            
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const code = input.value.trim();
+                if (code.length >= 10) {
+                    document.getElementById('barcodeStatus').innerHTML = '<span style="color: var(--text-muted);">Searching ISBN...</span>';
+                    document.getElementById('bookIsbn').value = code;
+                    switchBookTab('isbn');
+                    lookupIsbn();
+                    document.getElementById('bookIsbn').value = code;
+                }
+            }
+        });
+        
+        async function lookupIsbn() {
+            const isbn = document.getElementById('bookIsbn').value.trim().replace(/-/g, '');
+            if (!isbn || isbn.length < 10) { document.getElementById('isbnError').textContent = 'Enter a valid ISBN'; document.getElementById('isbnError').style.display = 'block'; return; }
+            
+            document.getElementById('isbnLoading').style.display = 'block';
+            document.getElementById('isbnError').style.display = 'none';
+            document.getElementById('isbnResults').style.display = 'none';
+            
+            try {
+                const response = await fetch('https://openlibrary.org/api/books?bibkeys=ISBN:' + isbn + '&format=json&jscmd=data');
+                const data = await response.json();
+                const key = 'ISBN:' + isbn;
+                if (data[key]) {
+                    const book = data[key];
+                    backupIsbn(isbn, data[key]);
+                    document.getElementById('isbnBookTitle').value = book.title || '';
+                    document.getElementById('isbnBookAuthor').value = book.authors ? book.authors[0].name : '';
+                    document.getElementById('isbnBookGenre').value = book.subjects ? book.subjects[0].name : '';
+                    document.getElementById('isbnResults').style.display = 'block';
+                } else {
+                    document.getElementById('isbnError').textContent = 'Book not found. Enter details manually.';
+                    document.getElementById('isbnError').style.display = 'block';
+                    document.getElementById('isbnBookTitle').value = '';
+                    document.getElementById('isbnBookAuthor').value = '';
+                    document.getElementById('isbnBookGenre').value = '';
+                    document.getElementById('isbnResults').style.display = 'block';
+                }
+            } catch (err) {
+                document.getElementById('isbnError').textContent = 'Error looking up ISBN';
+                document.getElementById('isbnError').style.display = 'block';
+                document.getElementById('isbnResults').style.display = 'block';
+            }
+            document.getElementById('isbnLoading').style.display = 'none';
+        }
+        
+        function closeBookModal() { document.getElementById('bookModal').classList.add('hidden'); }
+        
+        function saveBook() {
+            const editId = document.getElementById('editBookId').value;
+            const isManual = document.getElementById('tabManual').classList.contains('active');
+            let title, author, genre;
+            
+            if (isManual) {
+                title = document.getElementById('bookTitle').value.trim();
+                author = document.getElementById('bookAuthor').value.trim();
+                genre = document.getElementById('bookGenre').value.trim();
+            } else {
+                title = document.getElementById('isbnBookTitle').value.trim() || document.getElementById('bookTitle').value.trim();
+                author = document.getElementById('isbnBookAuthor').value.trim() || document.getElementById('bookAuthor').value.trim();
+                genre = document.getElementById('isbnBookGenre').value.trim() || document.getElementById('bookGenre').value.trim();
+            }
+            
+            if (!title) { showToast('Please enter a title', 'error'); return; }
+            
+            if (editId) {
+                const book = books.find(b => b.bookId === editId);
+                if (book) { book.title = title; book.author = author; book.genre = genre; }
+            } else {
+                const bookId = 'BOOK-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+                books.push({ bookId, title, author, genre, status: 'available', studentId: null, student: null, dueDate: null, classCode: currentTeacher.classCode });
+                addHistory('Added book', bookId, title);
+            }
+            saveData();
+            renderAll();
+            closeBookModal();
+            showToast(editId ? 'Book updated' : 'Book added');
+        }
+        
+        function deleteBook(bookId) {
+            const book = books.find(b => b.bookId === bookId);
+            if (!book) return;
+            if (book.status !== 'available' && !confirm('Book is checked out. Return it first?')) return;
+            if (!confirm('Delete "' + book.title + '"?')) return;
+            books = books.filter(b => b.bookId !== bookId);
+            saveData();
+            renderAll();
+            showToast('Book deleted');
+        }
+        
+        function deleteBookFromModal() {
+            const bookId = document.getElementById('editBookId').value;
+            if (bookId) {
+                deleteBook(bookId);
+                closeBookModal();
+            }
+        }
+        
+        // Student Modal
+        function openStudentModal() {
+            document.getElementById('studentModalTitle').textContent = 'Add Student';
+            document.getElementById('editStudentId').value = '';
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentUsernameCreate').value = '';
+            document.getElementById('studentPasswordCreate').value = 'hello';
+            document.getElementById('studentModal').classList.remove('hidden');
+        }
+        
+        function editStudent(id) {
+            const student = students.find(s => s.id === id);
+            if (!student) return;
+            document.getElementById('studentModalTitle').textContent = 'Edit Student';
+            document.getElementById('editStudentId').value = id;
+            document.getElementById('studentName').value = student.name;
+            document.getElementById('studentUsernameCreate').value = student.username;
+            document.getElementById('studentPasswordCreate').value = student.password || 'hello';
+            document.getElementById('studentModal').classList.remove('hidden');
+        }
+        
+        function closeStudentModal() { document.getElementById('studentModal').classList.add('hidden'); }
+        
+        function saveStudent() {
+            const editId = document.getElementById('editStudentId').value;
+            const name = document.getElementById('studentName').value.trim();
+            const username = document.getElementById('studentUsernameCreate').value.trim();
+            const password = document.getElementById('studentPasswordCreate').value.trim() || 'hello';
+            
+            if (!name) { showToast('Please enter student name', 'error'); return; }
+            if (username && students.find(s => s.username === username && s.id !== editId)) { showToast('Username taken', 'error'); return; }
+            
+            if (editId) {
+                const student = students.find(s => s.id === editId);
+                if (student) { student.name = name; student.username = username || student.username; student.password = password; }
+            } else {
+                const id = 'S' + Date.now();
+                students.push({ id, classCode: currentTeacher.classCode, name, username: username || 'student' + id.toLowerCase(), password, createdBy: 'teacher' });
+                showToast('Student added!');
+            }
+            saveData();
+            renderAll();
+            closeStudentModal();
+            if (editId) showToast('Student updated');
+        }
+        
+        function deleteStudent(id) {
+            const student = students.find(s => s.id === id);
+            if (!student) return;
+            const hasBooks = books.some(b => b.studentId === id);
+            if (hasBooks) { if (!confirm(student.name + ' has books checked out. Return them first?')) return; books.forEach(b => { if (b.studentId === id) { b.status = 'available'; b.studentId = null; b.student = null; b.dueDate = null; } }); }
+            if (!confirm('Delete ' + student.name + '?')) return;
+            students = students.filter(s => s.id !== id);
+            saveData();
+            renderAll();
+            showToast('Student deleted');
+        }
+        
+        function viewStudentBooks(studentId) {
+            const student = students.find(s => s.id === studentId);
+            if (!student) return;
+            const studentBooks = books.filter(b => b.studentId === studentId);
+            document.getElementById('viewStudentName').textContent = student.name + "'s Books";
+            document.getElementById('viewStudentBooks').innerHTML = studentBooks.length ?
+                studentBooks.map(book => `<div style="padding: 10px; border-bottom: 1px solid var(--border);"><strong>${escapeHtml(book.title)}</strong><div style="font-size: 0.85rem; color: var(--text-muted);">Due: ${formatDate(book.dueDate)}</div></div>`).join('') :
+                '<div class="empty-state"><div class="icon">📖</div><p>No books checked out</p></div>';
+            document.getElementById('viewStudentModal').classList.remove('hidden');
+        }
+        
+        function closeViewStudentModal() { document.getElementById('viewStudentModal').classList.add('hidden'); }
+        
+        // Checkout
+        function openCheckoutModal(bookId) {
+            const book = books.find(b => b.bookId === bookId);
+            if (!book) return;
+            document.getElementById('checkoutBookId').value = bookId;
+            document.getElementById('checkoutBookTitle').textContent = book.title;
+            const studentList = students.filter(s => s.classCode === currentTeacher.classCode);
+            document.getElementById('checkoutStudentSelect').innerHTML = studentList.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+            const dueDate = new Date();
+            dueDate.setDate(dueDate.getDate() + 14);
+            document.getElementById('checkoutDueDate').value = dueDate.toISOString().split('T')[0];
+            document.getElementById('checkoutModal').classList.remove('hidden');
+        }
+        
+        function closeCheckoutModal() { document.getElementById('checkoutModal').classList.add('hidden'); }
+        
+        function confirmCheckout() {
+            const bookId = document.getElementById('checkoutBookId').value;
+            const studentId = document.getElementById('checkoutStudentSelect').value;
+            const dueDate = document.getElementById('checkoutDueDate').value;
+            const book = books.find(b => b.bookId === bookId);
+            const student = students.find(s => s.id === studentId);
+            if (!book || !student) return;
+            
+            book.status = 'checked out';
+            book.studentId = studentId;
+            book.student = student.name;
+            book.dueDate = dueDate;
+            reservations = reservations.filter(r => !(r.bookId === bookId && r.studentId === studentId));
+            addHistory('Checked out', bookId, book.title, studentId, student.name);
+            saveData();
+            renderAll();
+            closeCheckoutModal();
+            showToast('Checked out to ' + student.name);
+        }
+        
+        // Return
+        function openReturnModal(bookId) {
+            const book = books.find(b => b.bookId === bookId);
+            if (!book) return;
+            document.getElementById('returnBookId').value = bookId;
+            document.getElementById('returnBookTitle').textContent = book.title;
+            document.getElementById('returnStudentName').textContent = book.student || 'Unknown';
+            document.getElementById('returnModal').classList.remove('hidden');
+        }
+        
+        function closeReturnModal() { document.getElementById('returnModal').classList.add('hidden'); }
+        
+        function confirmReturn() {
+            const bookId = document.getElementById('returnBookId').value;
+            const book = books.find(b => b.bookId === bookId);
+            if (!book) return;
+            const studentName = book.student;
+            book.status = 'available';
+            book.studentId = null;
+            book.student = null;
+            book.dueDate = null;
+            addHistory('Returned', bookId, book.title, null, studentName);
+            saveData();
+            renderAll();
+            closeReturnModal();
+            showToast('Book returned');
+        }
+        
+        // Scan - also detects barcode scans and offers to add unknown books
+        document.getElementById('scanSearch')?.addEventListener('input', function() {
+            const search = this.value.trim().toLowerCase();
+            if (!search) { document.getElementById('scanResults').innerHTML = '<p style="color: var(--text-muted);">Type or scan a book ID or title</p>'; return; }
+            const found = books.filter(b => b.bookId.toLowerCase().includes(search) || b.title.toLowerCase().includes(search));
+            if (found.length === 0) {
+                // Check if it looks like an ISBN barcode (10+ digits)
+                const digits = search.replace(/[^0-9X]/gi, '');
+                if (digits.length >= 10) {
+                    document.getElementById('scanResults').innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">📷</div>
+                            <p>Barcode scanned: <strong>${escapeHtml(digits)}</strong></p>
+                            <p style="font-size: 0.85rem; margin-bottom: 16px;">Book not found in library</p>
+                            <button class="btn btn-primary" onclick="quickLookupAndAdd('${digits}')">Lookup & Add Book</button>
+                        </div>`;
+                } else {
+                    document.getElementById('scanResults').innerHTML = `<div class="empty-state"><div class="icon">😕</div><p>Book not found in library</p></div>`;
+                }
+                return; }
+            document.getElementById('scanResults').innerHTML = found.map(book => `
+                <div class="book-item">
+                    <div class="book-item-info">
+                        <div class="book-item-title">${escapeHtml(book.title)}</div>
+                        <div class="book-item-meta">${escapeHtml(book.author || '')} — ${book.bookId}</div>
+                    </div>
+                    <div class="book-item-actions">
+                        <span class="badge ${book.status === 'available' ? 'badge-green' : 'badge-blue'}">${book.status === 'available' ? '✓ Available' : '📖 ' + escapeHtml(book.student || '')}</span>
+                        ${book.status === 'available' ? `<button class="btn btn-sm btn-primary" onclick="openCheckoutModal('${book.bookId}')">Checkout</button>` : `<button class="btn btn-sm btn-secondary" onclick="openReturnModal('${book.bookId}')">Return</button>`}
+                    </div>
+                </div>
+            `).join('');
+        });
+        
+        // Handle Enter key on scanSearch (barcode scanner types Enter after digits)
+        document.getElementById('scanSearch')?.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const search = this.value.trim().toLowerCase();
+                const digits = search.replace(/[^0-9X]/gi, '');
+                if (digits.length >= 10) {
+                    const found = books.filter(b => b.bookId.toLowerCase().includes(search) || b.title.toLowerCase().includes(search));
+                    if (found.length === 0) {
+                        quickLookupAndAdd(digits);
+                    }
+                }
+            }
+        });
+        
+        // Global barcode scanner — detects fast scanner input followed by Enter
+        let globalBarcodeBuffer = '';
+        let globalBarcodeTimer = null;
+        document.addEventListener('keydown', function globalBarcodeHandler(e) {
+            if (e.key === 'Enter' && globalBarcodeBuffer.length >= 10) {
+                e.preventDefault();
+                const isbn = globalBarcodeBuffer;
+                globalBarcodeBuffer = '';
+                clearTimeout(globalBarcodeTimer);
+                globalBarcodeTimer = null;
+                const panels = document.querySelectorAll('#teacherApp .panel');
+                let activePanelId = '';
+                panels.forEach(p => { if (p.classList.contains('active')) activePanelId = p.id; });
+                if (activePanelId === 'panel-scan') {
+                    document.getElementById('scanSearch').value = isbn;
+                    quickLookupAndAdd(isbn);
+                } else {
+                    const qs = document.getElementById('quickBarcodeScan');
+                    if (qs) {
+                        qs.value = isbn;
+                        showPanel('books');
+                        qs.focus();
+                        setTimeout(() => {
+                            qs.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+                        }, 100);
+                    }
+                }
+                return;
+            }
+            if (e.key === 'Enter') { globalBarcodeBuffer = ''; return; }
+            if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                const tag = document.activeElement?.tagName || '';
+                if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+                globalBarcodeBuffer += e.key;
+                clearTimeout(globalBarcodeTimer);
+                globalBarcodeTimer = setTimeout(() => { globalBarcodeBuffer = ''; }, 300);
+            }
+        });
+        
+        // Lookup ISBN from scan and add book directly
+        async function quickLookupAndAdd(isbn) {
+            document.getElementById('scanResults').innerHTML = '<p style="text-align: center; padding: 20px;">Looking up book...</p>';
+            try {
+                const response = await fetch('https://openlibrary.org/api/books?bibkeys=ISBN:' + isbn + '&format=json&jscmd=data');
+                const data = await response.json();
+                const key = 'ISBN:' + isbn;
+                if (data[key]) {
+                    const b = data[key];
+                    backupIsbn(isbn, data[key]);
+                    const bookId = 'BOOK-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+                    books.push({ bookId, title: b.title || 'Unknown', author: b.authors ? b.authors[0].name : '', genre: b.subjects ? b.subjects[0].name : '', isbn, status: 'available', studentId: null, student: null, dueDate: null, classCode: currentTeacher.classCode });
+                    addHistory('Added book', bookId, b.title);
+                    saveData();
+                    renderBooks();
+                    renderStats();
+                    document.getElementById('scanSearch').value = '';
+                    document.getElementById('scanResults').innerHTML = `<div style="text-align: center; padding: 20px;"><span style="font-size: 2rem;">✅</span><p style="margin-top: 8px;">Added: <strong>${escapeHtml(b.title)}</strong></p><button class="btn btn-sm btn-primary" onclick="openCheckoutModal('${bookId}')" style="margin-top: 12px;">Checkout</button></div>`;
+                    showToast('Book added: ' + (b.title || 'Unknown'));
+                } else {
+                    document.getElementById('scanResults').innerHTML = '<div class="empty-state"><div class="icon">😕</div><p>Book not found in Open Library</p><button class="btn btn-secondary" onclick="openBookModal()" style="margin-top: 8px;">Add Manually</button></div>';
+                    document.getElementById('scanSearch').value = '';
+                }
+            } catch (err) {
+                document.getElementById('scanResults').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Error looking up book</p><button class="btn btn-secondary" onclick="openBookModal()" style="margin-top: 8px;">Add Manually</button></div>';
+                document.getElementById('scanSearch').value = '';
+            }
+        }
+        
+        // Quick barcode scan in Books panel - auto-adds book on scan
+        let quickBarcodeTimer = null;
+        const quickBarcodeInput = document.getElementById('quickBarcodeScan');
+        if (quickBarcodeInput) {
+            quickBarcodeInput.addEventListener('keydown', async function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const isbn = this.value.trim().replace(/-/g, '');
+                    if (isbn.length < 10) {
+                        document.getElementById('quickBarcodeStatus').innerHTML = '<span style="color: var(--danger);">Invalid barcode</span>';
+                        this.value = '';
+                        return;
+                    }
+                    
+                    document.getElementById('quickBarcodeStatus').innerHTML = '<span style="color: var(--text-muted);">Looking up book...</span>';
+                    
+                    try {
+                        const response = await fetch('https://openlibrary.org/api/books?bibkeys=ISBN:' + isbn + '&format=json&jscmd=data');
+                        const data = await response.json();
+                        const key = 'ISBN:' + isbn;
+                        
+                        if (data[key]) {
+                            const bookData = data[key];
+                            backupIsbn(isbn, bookData);
+                            const bookId = 'BOOK-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+                            const title = bookData.title || 'Unknown Title';
+                            const author = bookData.authors ? bookData.authors[0].name : '';
+                            const genre = bookData.subjects ? bookData.subjects[0].name : '';
+                            
+                            books.push({ bookId, title, author, genre, isbn, status: 'available', studentId: null, student: null, dueDate: null, classCode: currentTeacher.classCode });
+                            addHistory('Added book', bookId, title);
+                            saveData();
+                            renderBooks();
+                            renderStats();
+                            
+                            document.getElementById('quickBarcodeStatus').innerHTML = `<span style="color: var(--success);">✅ Added: ${escapeHtml(title)}</span>`;
+                            this.value = '';
+                            showToast('Book added: ' + title);
+                        } else {
+                            document.getElementById('quickBarcodeStatus').innerHTML = '<span style="color: var(--danger);">Book not found</span>';
+                            this.value = '';
+                        }
+                    } catch (err) {
+                        document.getElementById('quickBarcodeStatus').innerHTML = '<span style="color: var(--danger);">Error looking up book</span>';
+                        this.value = '';
+                    }
+                }
+            });
+        }
+        
+        // Export
+        function exportData() {
+            const isbnBackup = JSON.parse(localStorage.getItem('libIsbnBackup') || '{}');
+            const data = { books, students, history, reservations, isbnBackup, exportedAt: new Date().toISOString() };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'library-' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+            showToast('Data exported!');
+        }
+        
+        function addHistory(action, bookId, bookTitle, studentId, studentName) {
+            const classCode = currentTeacher ? currentTeacher.classCode : (currentStudent ? currentStudent.classCode : '');
+            history.push({ id: Date.now(), action, bookId, bookTitle, studentId, studentName, timestamp: new Date().toISOString(), classCode });
+        }
+        
+        // Utilities
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.getElementById('toastContainer').appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+        
+        init();
+    </script>
+</body>
+</html>
